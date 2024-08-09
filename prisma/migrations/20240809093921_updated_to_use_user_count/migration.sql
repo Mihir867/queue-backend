@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Flow" ADD COLUMN     "userCount" INTEGER NOT NULL DEFAULT 0;
