@@ -1,25 +1,40 @@
-import Redis from 'ioredis';
 
-const redis = new Redis({
-  host: process.env.REDIS_HOST || '127.0.0.1',
-  port: process.env.REDIS_PORT || 6379,
-  password: process.env.REDIS_PASSWORD,
+import { createClient } from 'redis';
+
+const redisClient = createClient({
+  url: 'redis://localhost:6379' 
 });
+
+redisClient.on('error', (err) => console.error('Redis Client Error', err));
+
+await redisClient.connect();
+export default redisClient;
 
 export const enqueueRequest = async (userId, request) => {
   const queueKey = `queue:${userId}`;
-  await redis.rpush(queueKey, JSON.stringify(request));
+  await redisClient.rPush(queueKey, JSON.stringify(requestData));
 };
 
 export const dequeueRequest = async (userId) => {
   const queueKey = `queue:${userId}`;
-  const request = await redis.lpop(queueKey);
+  const request = await redisClient.lPop(queueKey);
   return JSON.parse(request);
 };
 
 export const processQueue = async (userId) => {
-  let request;
-  while ((request = await dequeueRequest(userId)) !== null) {
-    // Process request
+  const queueKey = `queue:${userId}`;
+  
+  while (true) {
+    const requestData = await redisClient.lPop(queueKey);
+    
+    if (!requestData) {
+      break; 
+    }
+
+    const request = JSON.parse(requestData);
+    
+    // Process the request
+    await handleRequestLogic(userId, request);
   }
 };
+
