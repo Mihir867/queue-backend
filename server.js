@@ -2,6 +2,7 @@
 import express from 'express';
 import { createUser, findUserByEmail } from './src/models/userModel.js';
 import { PrismaClient } from '@prisma/client';
+import client from "prom-client";
 
 
 import { authenticate } from './src/middleware/authMiddleware.js';
@@ -9,9 +10,12 @@ import { handleRequest } from './src/controllers/queueControllers.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { allocateUser, toggleAstrologerFlow } from './src/controllers/flowController.js';
+import { activeRequestsGauge, requestCountMiddleware } from './src/metrics/requestCounts.js';
 
 const app = express();
 app.use(express.json());
+app.use(requestCountMiddleware);
+
 
 const prisma = new PrismaClient();
 export const register = async (req, res) => {
@@ -55,6 +59,16 @@ export const login = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+app.get('/metrics', async (req, res) => {
+  try {
+      const metrics = await client.register.metrics();
+      res.set('Content-Type', client.register.contentType);
+      res.end(metrics);
+  } catch (err) {
+      res.status(500).end(err);
+  }
+});
 
 app.post('/register', register);
 app.post('/login', login);
