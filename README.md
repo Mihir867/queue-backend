@@ -1,5 +1,7 @@
 # Queue Backend System with Flow Distribution
 
+[View the Diagram](https://lucid.app/lucidchart/1d8065e5-0421-40cf-97f8-44d506496ccc/edit?viewport_loc=-2437%2C-590%2C2747%2C1416%2C0_0&invitationId=inv_0720e78b-eeb2-4e9c-8887-535ca940a8db) - This diagram explains the user flow, starting from login, through the queue process, and also shows metrics tracking.
+
 ## Overview
 
 This project implements a backend system designed to efficiently manage user requests using a queue structure. The system ensures that each client has a dedicated queue, where requests are processed sequentially. It also includes a flow distribution algorithm that connects users with astrologers, ensuring fair distribution of requests.
